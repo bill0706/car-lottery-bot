@@ -3,6 +3,7 @@ import os
 from selenium import webdriver
 
 from utility.function_wrapper import log_measure
+from utility.time_handler import check_service_time
 
 folder_path = os.path.abspath(os.getcwd()) 
 
@@ -20,7 +21,7 @@ def set_level():
     # check level 
     for level in level_list:
         int(level)
-
+    
     return level_list
 
 
@@ -42,6 +43,7 @@ def open_browser():
 def init():
     level_list = set_level()
     driver = open_browser()
+    check_service_time()
 
 
 if __name__ == '__main__':
