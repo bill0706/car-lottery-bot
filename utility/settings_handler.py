@@ -45,14 +45,17 @@ def open_browser():
 
 
 def user_prompt():
-    print("登入系統後，請開啟極速賽車後台頁面，再按下 'Enter' 鍵")
+    logger.info("登入系統後，請開啟極速賽車後台頁面，再按下 'Enter' 鍵")
+    
     while True:
         key_response = input('')
         
         if key_response == '':
             break
         else:
-            print('輸入錯誤! 請重新輸入')
+            logger.warning('輸入錯誤! 請重新輸入')
+    
+    logger.info("登入驗證成功!")
 
 
 @log_measure
@@ -67,4 +70,5 @@ def check_login_page(driver):
     
     # Close browser manually to prevent OSError
     driver.quit()
+    
     raise SystemExit("driver.title == '極速賽車' not found")
