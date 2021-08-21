@@ -1,10 +1,12 @@
-import datetime
+from datetime import datetime
 import json
+import logging
 
 from bs4 import BeautifulSoup
 import requests
 
 from utility.function_wrapper import log_measure
+from utility.log_handler import logger
 
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -33,15 +35,23 @@ def fetch_prize_api():
 
 
 @log_measure
-def fetch_prize_time():
-    response = requests.get("https://api.apiose122.com/pks/getPksDoubleCount.do?date=&lotCode=10037", headers=headers)
-    api_dic = json.loads(response.text)
-    
-    # get next prize time
+def fetch_remaining_seconds(api_dic):
+    # get next prize datetime
     datetime_str = api_dic['result']['data']['drawTime']
     datetime_obj = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
 
-    return datetime_obj
+    next_prize_unixtime = datetime_obj.timestamp()
+    now_unixtime = datetime.now().timestamp()
+    remaining_seconds = next_prize_unixtime - now_unixtime
+
+    return remaining_seconds
+
+
+@log_measure
+def first_fetch():
+    api_dic = fetch_prize_api()
+    remaining_seconds = fetch_remaining_seconds(api_dic)
+    logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
 
 
 @log_measure

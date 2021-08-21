@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 
-console_level = logging.INFO
+console_level = logging.DEBUG
 file_level = logging.ERROR
 
 absPath = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))

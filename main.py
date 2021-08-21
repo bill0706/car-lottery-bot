@@ -1,5 +1,6 @@
 from utility.settings_handler import set_level, open_browser, user_prompt, check_login_page
 from utility.time_handler import check_service_time
+from utility.fetch_handler import first_fetch
 
 
 def init():
@@ -8,11 +9,13 @@ def init():
     driver = open_browser()
     user_prompt()
     driver = check_login_page(driver)
-    
-    check_service_time()
 
+    check_service_time()
+    
     driver.quit()
 
 
 if __name__ == '__main__':
+    first_fetch()
     init()
+    
