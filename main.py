@@ -17,5 +17,5 @@ def init():
 
 if __name__ == '__main__':
     first_fetch()
-    init()
+    # init()
     

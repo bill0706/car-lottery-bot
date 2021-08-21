@@ -1,6 +1,9 @@
 from datetime import datetime
 import json
 import logging
+from queue import Queue
+import threading
+import time
 
 from bs4 import BeautifulSoup
 import requests
@@ -36,7 +39,8 @@ def fetch_prize_api():
 
 @log_measure
 def fetch_remaining_seconds(api_dic):
-    # get next prize datetime
+
+    # Get next prize datetime
     datetime_str = api_dic['result']['data']['drawTime']
     datetime_obj = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
 
@@ -48,19 +52,51 @@ def fetch_remaining_seconds(api_dic):
 
 
 @log_measure
-def first_fetch():
-    api_dic = fetch_prize_api()
-    remaining_seconds = fetch_remaining_seconds(api_dic)
-    logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
+def fetch_prize_numbers(api_dic):
+
+    # Get prize number
+    prize_str = api_dic['result']['data']['preDrawCode']
+    prize_numbers = prize_str.split(',')
+
+    return prize_numbers
 
 
 @log_measure
-def fetch_prize_numbers():
-    response = requests.get("https://api.apiose122.com/pks/getPksDoubleCount.do?date=&lotCode=10037", headers=headers)
-    api_dic = json.loads(response.text)
+def fetch_details_loop(loop_queue, remaining_seconds):
+    
+    # First fetch, sleep first, then get next prize details
+    logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
+    time.sleep(remaining_seconds + 5)
 
-    # get prize number
-    prize_str = api_dic['result']['data']['preDrawCode']
-    prize_list = prize_str.split(',')
+    while True:
+        api_dic = fetch_prize_api()
+        prize_numbers = fetch_prize_numbers(api_dic)
 
-    return prize_list
+        remaining_seconds = fetch_remaining_seconds(api_dic)
+        logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
+        time.sleep(remaining_seconds + 5)
+
+        loop_queue.put(prize_numbers)
+
+
+@log_measure
+def first_fetch():
+    api_dic = fetch_prize_api()
+    remaining_seconds = fetch_remaining_seconds(api_dic)
+
+    loop_queue = Queue()
+    loop_thread = threading.Thread(target=fetch_details_loop, args=(loop_queue, remaining_seconds))
+
+    if remaining_seconds > 30:    
+        loop_thread.start()
+
+    # Wait next prize, sleep first(main and thread function)     
+    else:
+
+        # sleep in fetch_details_loop function
+        loop_thread.start()
+
+        time.sleep(remaining_seconds + 5)
+        
+
+
