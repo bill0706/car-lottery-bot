@@ -80,6 +80,35 @@ def fetch_details_loop(loop_queue, remaining_seconds):
 
 
 @log_measure
+def start_processer(loop_queue, api_dic):
+    queue_numbers = []
+
+    # Run instantly process (remaining_seconds > 30)
+    if api_dic != '':
+        prize_numbers = fetch_prize_numbers(api_dic)
+        logger.debug("[DEBUG] Run instantly, prize numbers: %s" %prize_numbers)
+
+    # Run after sleep, wait for the next prize numbers
+    else:
+        queue_numbers = loop_queue.get()
+
+    while queue_numbers or api_dic != '':
+       
+        # Enter in loop_queue.get() expression 
+        if queue_numbers != []:
+            prize_numbers = queue_numbers
+            logger.debug("[DEBUG] Run in while, prize numbers: %s" %prize_numbers)
+        
+        # Run instantly process, close the door
+        else:
+            api_dic = ''
+
+        # wait for the next prize numbers
+        queue_numbers = loop_queue.get()
+
+
+
+@log_measure
 def first_fetch():
     api_dic = fetch_prize_api()
     remaining_seconds = fetch_remaining_seconds(api_dic)
@@ -89,6 +118,7 @@ def first_fetch():
 
     if remaining_seconds > 30:    
         loop_thread.start()
+        start_processer(loop_queue, api_dic)
 
     # Wait next prize, sleep first(main and thread function)     
     else:
@@ -97,6 +127,7 @@ def first_fetch():
         loop_thread.start()
 
         time.sleep(remaining_seconds + 5)
-        
-
+        start_processer(loop_queue, '')
+    
+    
 
