@@ -8,8 +8,10 @@ from bs4 import BeautifulSoup
 import requests
 
 from utility.function_wrapper import log_measure
-from utility.thread_handler import close_thread, ThreadWithException, thread_list 
 from utility.log_handler import logger
+from utility.rule_handler import calculate_position
+from utility.thread_handler import close_thread, ThreadWithException, thread_list 
+
 
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -72,12 +74,13 @@ def fetch_prize_loop(loop_queue, remaining_seconds):
     while True:
         api_dic = fetch_prize_api()
         prize_numbers = fetch_prize_details(api_dic)
+        
+        # Put numbers first, then sleep to wait for next prize
+        loop_queue.put(prize_numbers)
 
         remaining_seconds = fetch_remaining_seconds(api_dic)
         logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
         time.sleep(remaining_seconds + 5)
-
-        loop_queue.put(prize_numbers)
 
 
 @log_measure
@@ -101,6 +104,9 @@ def start_processer(loop_queue, api_dic):
             api_dic = None
 
         logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
+
+        bet_num, bet_position = calculate_position(prize_numbers)
+        logger.debug('[DEBUG] bet_num: %s, bet_position: %s ' %(bet_num, bet_position))
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
