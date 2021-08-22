@@ -99,6 +99,8 @@ def first_fetch():
 
     # Wait next prize, sleep first(main and thread function)     
     else:
+        # Remove the price details, wait for next prize in start_processer function
+        api_dic = None
 
         # sleep in fetch_prize_loop function
         loop_thread.start()
