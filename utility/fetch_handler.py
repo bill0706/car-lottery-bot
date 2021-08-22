@@ -84,36 +84,6 @@ def fetch_prize_loop(loop_queue, remaining_seconds):
 
 
 @log_measure
-def start_processer(loop_queue, api_dic):
-    # Used for first run
-    queue_numbers = None
-
-    # First run process
-    prize_numbers, prize_issue = fetch_prize_details(api_dic)
-    logger.debug("[DEBUG] First run, prize numbers: %s" %prize_numbers)
-
-    while queue_numbers or api_dic is not None:
-       
-        # Enter in loop_queue.get() expression 
-        if queue_numbers is not None:
-            prize_numbers, prize_issue = queue_numbers
-            logger.debug("[DEBUG] Run in while, prize numbers: %s" %prize_numbers)
-        
-        # Close the first run's door
-        else:
-            api_dic = None
-
-        logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
-
-        bet_num, bet_position = calculate_position(prize_numbers)
-        logger.debug('[DEBUG] bet_num: %s, bet_position: %s ' %(bet_num, bet_position))
-
-        # wait for the next prize numbers
-        queue_numbers = loop_queue.get()
-
-
-
-@log_measure
 def first_fetch():
     global thread_list
 
@@ -126,7 +96,6 @@ def first_fetch():
 
     if remaining_seconds > 30:    
         loop_thread.start()
-        start_processer(loop_queue, api_dic)
 
     # Wait next prize, sleep first(main and thread function)     
     else:
@@ -135,7 +104,6 @@ def first_fetch():
         loop_thread.start()
 
         time.sleep(remaining_seconds + 5)
-        start_processer(loop_queue, api_dic)
     
-    
+    return loop_queue, api_dic
 
