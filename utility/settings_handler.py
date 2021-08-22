@@ -3,7 +3,7 @@ import os
 
 from selenium import webdriver
 
-from setting.function_wrapper import log_measure
+from setting.function_wrapper import log_measure, driver_list
 from setting.log_handler import logger
 
 folder_path = os.path.abspath(os.getcwd()) 
@@ -57,18 +57,21 @@ def user_login_prompt():
             break
         else:
             logger.warning('輸入錯誤! 請重新輸入')
-    
-    logger.info("登入驗證成功!")
 
 
 @log_measure
 def check_login_page(driver):
+    global driver_list
 
     # Find tab in browser
     for window_id in driver.window_handles:
         driver.switch_to.window(window_id)
 
         if driver.title == '極速賽車':
+            logger.info("登入驗證成功!")
+
+            driver_list.append(driver)
+            
             return
     
     # Close browser manually to prevent OSError
@@ -118,11 +121,11 @@ def set_backend_page(driver):
 @log_measure
 def user_point_prompt(bet_details):
     while True:
-        key_response = input('請輸入起始積分: ')
+        key_response = input('請輸入起始積分 (最小額度 2): ')
         
         try:
             point = int(key_response)
-            if point >= 1:
+            if point >= 2:
                 break
         
         except:

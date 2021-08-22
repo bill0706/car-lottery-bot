@@ -6,6 +6,7 @@ import traceback
 from setting.log_handler import logger
 from utility.thread_handler import close_thread, ThreadWithException, thread_list
 
+driver_list = []
 test_dict = {
     'set_level': '關卡設定錯誤',
     'open_browser': '開啟瀏覽器發生錯誤',
@@ -16,7 +17,7 @@ test_dict = {
 
 
 def log_measure(func):
-    global thread_list
+    global thread_list, driver_list
 
     log_dict = {'orignal_func': func.__name__}
 
@@ -36,6 +37,10 @@ def log_measure(func):
                 logger.error(test_dict[func.__name__], extra=log_dict)
             else:
                 logger.error('', extra=log_dict)
+
+            # Close driver if existed
+            for driver in driver_list:
+                driver.quit()
 
             # Close threads if existed
             close_thread(func.__name__)

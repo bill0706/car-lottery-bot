@@ -4,11 +4,16 @@ from utility.settings_handler import set_level, open_browser, user_login_prompt,
 from utility.time_handler import check_service_time
 from utility.processer_handler import start_processer
 
+driver_list = []
+
+
 def init():
+    global driver_list
     bet_details = BetDetails()
     bet_details.level_list = set_level()
     
     driver = open_browser()
+
     user_login_prompt()
     check_login_page(driver)
     set_backend_page(driver)
