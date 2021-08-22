@@ -1,9 +1,9 @@
-from utility.function_wrapper import log_measure
-from utility.log_handler import logger
+from setting.function_wrapper import log_measure
+from setting.log_handler import logger
 
 
 @log_measure
-def calculate_position(prize_numbers):
+def calculate_position(bet_details, prize_numbers):
 
     # used in formula
     aggregation = 0
@@ -40,4 +40,7 @@ def calculate_position(prize_numbers):
     
     bet_num = aggregation
     
-    return bet_num, bet_position
+    bet_details.bet_num = bet_num
+    bet_details.bet_position = bet_position
+    
+    return bet_details

@@ -1,7 +1,7 @@
 import ctypes
 import threading
 
-from utility.log_handler import logger
+from setting.log_handler import logger
 
 thread_list = []
 

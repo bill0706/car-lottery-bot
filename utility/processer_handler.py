@@ -1,6 +1,7 @@
+from setting.bet import BetDetails
+from setting.function_wrapper import log_measure
+from setting.log_handler import logger
 from utility.fetch_handler import fetch_prize_details
-from utility.function_wrapper import log_measure
-from utility.log_handler import logger
 from utility.rule_handler import calculate_position
 
 
@@ -8,6 +9,7 @@ from utility.rule_handler import calculate_position
 def start_processer(loop_queue, api_dic):
     # Used for first run
     queue_numbers = None
+    bet_details = BetDetails()
 
     # First run process
     prize_numbers, prize_issue = fetch_prize_details(api_dic)
@@ -26,8 +28,8 @@ def start_processer(loop_queue, api_dic):
 
         logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
 
-        bet_num, bet_position = calculate_position(prize_numbers)
-        logger.debug('[DEBUG] bet_num: %s, bet_position: %s ' %(bet_num, bet_position))
+        bet_details = calculate_position(bet_details, prize_numbers)
+        logger.debug('[DEBUG] bet_num: %s, bet_position: %s ' %(bet_details.bet_num, bet_details.bet_position))
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()

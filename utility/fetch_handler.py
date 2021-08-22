@@ -7,8 +7,8 @@ import time
 from bs4 import BeautifulSoup
 import requests
 
-from utility.function_wrapper import log_measure
-from utility.log_handler import logger
+from setting.function_wrapper import log_measure
+from setting.log_handler import logger
 from utility.rule_handler import calculate_position
 from utility.thread_handler import close_thread, ThreadWithException, thread_list 
 

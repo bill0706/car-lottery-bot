@@ -3,7 +3,7 @@ import sys
 import time
 import traceback
 
-from utility.log_handler import logger
+from setting.log_handler import logger
 from utility.thread_handler import close_thread, ThreadWithException, thread_list
 
 test_dict = {

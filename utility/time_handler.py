@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from utility.function_wrapper import log_measure
+from setting.function_wrapper import log_measure
 
 
 @log_measure

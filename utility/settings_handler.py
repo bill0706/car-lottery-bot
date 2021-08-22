@@ -2,8 +2,8 @@ import os
 
 from selenium import webdriver
 
-from utility.function_wrapper import log_measure
-from utility.log_handler import logger
+from setting.function_wrapper import log_measure
+from setting.log_handler import logger
 
 folder_path = os.path.abspath(os.getcwd()) 
 
@@ -70,5 +70,5 @@ def check_login_page(driver):
     
     # Close browser manually to prevent OSError
     driver.quit()
-    
+
     raise SystemExit("driver.title == '極速賽車' not found")
