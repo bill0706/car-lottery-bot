@@ -3,12 +3,14 @@ from setting.log_handler import logger
 
 
 @log_measure
-def calculate_position(bet_details, prize_numbers):
+def calculate_position(bet_details):
 
     # used in formula
     aggregation = 0
     count = 1
     bet_position = []
+
+    prize_numbers = bet_details.prize_numbers
 
     champion = prize_numbers[0]
     
@@ -42,5 +44,17 @@ def calculate_position(bet_details, prize_numbers):
     
     bet_details.bet_num = bet_num
     bet_details.bet_position = bet_position
-    
+
     return bet_details
+
+
+@log_measure
+def bet_formula(bet_details):
+    pass
+
+
+@log_measure
+def check_win(bet_details):
+    pass
+
+
