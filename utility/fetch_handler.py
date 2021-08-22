@@ -83,22 +83,22 @@ def fetch_prize_loop(loop_queue, remaining_seconds):
 @log_measure
 def start_processer(loop_queue, api_dic):
     # Used for first run
-    queue_numbers = []
+    queue_numbers = None
 
     # First run process
     prize_numbers, prize_issue = fetch_prize_details(api_dic)
     logger.debug("[DEBUG] First run, prize numbers: %s" %prize_numbers)
 
-    while queue_numbers or api_dic != '':
+    while queue_numbers or api_dic is not None:
        
         # Enter in loop_queue.get() expression 
-        if queue_numbers != []:
+        if queue_numbers is not None:
             prize_numbers, prize_issue = queue_numbers
             logger.debug("[DEBUG] Run in while, prize numbers: %s" %prize_numbers)
         
         # Close the first run's door
         else:
-            api_dic = ''
+            api_dic = None
 
         logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
 
