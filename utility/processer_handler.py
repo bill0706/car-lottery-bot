@@ -5,7 +5,11 @@ from utility.rule_handler import calculate_position, bet_formula, round_setting
 
 
 @log_measure
-def start_processer(loop_queue, api_dic, bet_details):
+def start_bet(bet_details, driver):
+    pass
+
+@log_measure
+def start_processer(loop_queue, api_dic, bet_details, driver):
     
     # Used for first run
     queue_numbers = None
@@ -44,8 +48,10 @@ def start_processer(loop_queue, api_dic, bet_details):
         bet_details = calculate_position(bet_details)
 
         # Run bet
+        start_bet(bet_details, driver)
 
         bet_details = round_setting(bet_details)    
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
+

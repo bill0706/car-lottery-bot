@@ -69,12 +69,50 @@ def check_login_page(driver):
         driver.switch_to.window(window_id)
 
         if driver.title == '極速賽車':
-            return driver
+            return
     
     # Close browser manually to prevent OSError
     driver.quit()
 
     raise SystemExit("driver.title == '極速賽車' not found")
+
+
+@log_measure
+def set_backend_page(driver):
+    logger.info("設定後台頁面")
+
+    # change auto dropdown list
+    dropdown_block = driver.find_elements_by_class_name('new_nav_box')
+    dropdown_elements = []
+
+    for _ in dropdown_block:
+        a_elements = _.find_elements_by_tag_name('a')
+        dropdown_elements.extend(a_elements) 
+
+    for dropdown_element in dropdown_elements:
+        if dropdown_element.get_attribute("innerText") == '168極速賽車':
+            break
+    
+    # directly click menu
+    driver.find_element_by_id('menuText').click()
+    
+    # click frame '168極速賽車'
+    dropdown_element.click()
+    
+    # switch to iframe first
+    # by id/name
+    # can't execute twice
+    driver.switch_to.frame("mainIframe")
+
+    tabs_block = driver.find_element_by_css_selector("ul.base-clear")
+    tabs = tabs_block.find_elements_by_tag_name('li')
+
+    for tab in tabs:
+        if tab.text == '單球1-10':
+            break
+    tab.click()
+
+    logger.info("設定完成")
 
 
 @log_measure
