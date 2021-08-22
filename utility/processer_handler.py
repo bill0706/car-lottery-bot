@@ -13,9 +13,9 @@ def start_bet(bet_details, driver):
 
     remaining_score = driver.find_element_by_id("usableCreditSpan").text
     
-    if bet_details.bet_value < int(remaining_score):
+    if bet_details.bet_value > int(remaining_score):
         raise SystemExit("錯誤! 餘額不足，無法下標")
-    
+
     # Switch to iframe
     driver.switch_to.frame("mainIframe")
 
@@ -105,7 +105,8 @@ def start_processer(loop_queue, api_dic, bet_details, driver):
         bet_details = calculate_position(bet_details)
 
         # Run bet
-        start_bet(bet_details, driver)
+        if bet_details.start_bet_flag:
+            start_bet(bet_details, driver)
 
         bet_details = round_setting(bet_details)    
 

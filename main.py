@@ -16,12 +16,15 @@ def init():
 
     user_login_prompt()
     check_login_page(driver)
+    
+    check_service_time()
     set_backend_page(driver)
     
     bet_details = user_point_prompt(bet_details)
     check_service_time()
 
     return bet_details, driver
+
 
 if __name__ == '__main__':
     bet_details, driver = init()
