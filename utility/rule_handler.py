@@ -101,6 +101,7 @@ def check_bet_result(bet_details):
         if bet_details.last_win_flag:
             logger.info("成功進場!")
             bet_details.check_approach_flag = False
+            bet_details.start_bet_flag = True
     
     # had approached
     else:
@@ -119,7 +120,7 @@ def check_bet_result(bet_details):
             if bet_details.level_index == len(bet_details.level_list):
                 bet_details.level_index = 0
                 bet_details.check_approach_flag = True
-                bet_details.start_bet_flag = True
+                bet_details.start_bet_flag = False
                 logger.info("關卡結束，等待重新進場...")
             
             else:
