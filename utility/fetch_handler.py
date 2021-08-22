@@ -2,13 +2,13 @@ from datetime import datetime
 import json
 import logging
 from queue import Queue
-import threading
 import time
 
 from bs4 import BeautifulSoup
 import requests
 
 from utility.function_wrapper import log_measure
+from utility.thread_handler import close_thread, ThreadWithException, thread_list 
 from utility.log_handler import logger
 
 headers = {
@@ -52,17 +52,18 @@ def fetch_remaining_seconds(api_dic):
 
 
 @log_measure
-def fetch_prize_numbers(api_dic):
+def fetch_prize_details(api_dic):
 
     # Get prize number
+    prize_issue = api_dic['result']['data']['preDrawIssue']
     prize_str = api_dic['result']['data']['preDrawCode']
     prize_numbers = prize_str.split(',')
 
-    return prize_numbers
+    return prize_numbers, prize_issue
 
 
 @log_measure
-def fetch_details_loop(loop_queue, remaining_seconds):
+def fetch_prize_loop(loop_queue, remaining_seconds):
     
     # First fetch, sleep first, then get next prize details
     logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
@@ -70,7 +71,7 @@ def fetch_details_loop(loop_queue, remaining_seconds):
 
     while True:
         api_dic = fetch_prize_api()
-        prize_numbers = fetch_prize_numbers(api_dic)
+        prize_numbers = fetch_prize_details(api_dic)
 
         remaining_seconds = fetch_remaining_seconds(api_dic)
         logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
@@ -81,27 +82,25 @@ def fetch_details_loop(loop_queue, remaining_seconds):
 
 @log_measure
 def start_processer(loop_queue, api_dic):
+    # Used for first run
     queue_numbers = []
 
-    # Run instantly process (remaining_seconds > 30)
-    if api_dic != '':
-        prize_numbers = fetch_prize_numbers(api_dic)
-        logger.debug("[DEBUG] Run instantly, prize numbers: %s" %prize_numbers)
-
-    # Run after sleep, wait for the next prize numbers
-    else:
-        queue_numbers = loop_queue.get()
+    # First run process
+    prize_numbers, prize_issue = fetch_prize_details(api_dic)
+    logger.debug("[DEBUG] First run, prize numbers: %s" %prize_numbers)
 
     while queue_numbers or api_dic != '':
        
         # Enter in loop_queue.get() expression 
         if queue_numbers != []:
-            prize_numbers = queue_numbers
+            prize_numbers, prize_issue = queue_numbers
             logger.debug("[DEBUG] Run in while, prize numbers: %s" %prize_numbers)
         
-        # Run instantly process, close the door
+        # Close the first run's door
         else:
             api_dic = ''
+
+        logger.info("第 %s 期 開獎號碼為 %s" %prize_issue %prize_numbers)
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
@@ -110,11 +109,14 @@ def start_processer(loop_queue, api_dic):
 
 @log_measure
 def first_fetch():
+    global thread_list
+
     api_dic = fetch_prize_api()
     remaining_seconds = fetch_remaining_seconds(api_dic)
 
     loop_queue = Queue()
-    loop_thread = threading.Thread(target=fetch_details_loop, args=(loop_queue, remaining_seconds))
+    loop_thread = ThreadWithException(target=fetch_prize_loop, args=(loop_queue, remaining_seconds))
+    thread_list.append(loop_thread)
 
     if remaining_seconds > 30:    
         loop_thread.start()
@@ -123,11 +125,11 @@ def first_fetch():
     # Wait next prize, sleep first(main and thread function)     
     else:
 
-        # sleep in fetch_details_loop function
+        # sleep in fetch_prize_loop function
         loop_thread.start()
 
         time.sleep(remaining_seconds + 5)
-        start_processer(loop_queue, '')
+        start_processer(loop_queue, api_dic)
     
     
 
