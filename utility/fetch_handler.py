@@ -100,7 +100,7 @@ def start_processer(loop_queue, api_dic):
         else:
             api_dic = ''
 
-        logger.info("第 %s 期 開獎號碼為 %s" %prize_issue %prize_numbers)
+        logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
