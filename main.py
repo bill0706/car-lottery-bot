@@ -1,6 +1,6 @@
 from setting.bet import BetDetails
 from utility.fetch_handler import first_fetch
-from utility.settings_handler import set_level, open_browser, user_prompt, check_login_page
+from utility.settings_handler import set_level, open_browser, user_login_prompt, check_login_page, user_point_prompt
 from utility.time_handler import check_service_time
 from utility.processer_handler import start_processer
 
@@ -10,11 +10,13 @@ def init():
 
     '''
     driver = open_browser()
-    user_prompt()
+    user_login_prompt()
     driver = check_login_page(driver)
-
+    '''
+    bet_details = user_point_prompt(bet_details)
     check_service_time()
     
+    '''
     driver.quit()
     '''
 

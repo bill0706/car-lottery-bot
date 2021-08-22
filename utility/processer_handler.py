@@ -1,7 +1,7 @@
 from setting.function_wrapper import log_measure
 from setting.log_handler import logger
 from utility.fetch_handler import fetch_prize_details
-from utility.rule_handler import calculate_position, check_win
+from utility.rule_handler import calculate_position, bet_formula, round_setting
 
 
 @log_measure
@@ -34,15 +34,18 @@ def start_processer(loop_queue, api_dic, bet_details):
         # Close the first run and remaing seconds > 30 's door
         else:
             api_dic = None
-
-        logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
         
         bet_details.prize_numbers = prize_numbers
 
-
-        bet_details = calculate_position(bet_details)
+        logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
             
-        logger.debug('[DEBUG] bet_num: %s, bet_position: %s ' %(bet_details.bet_num, bet_details.bet_position))
+        # Start the bet rule
+        bet_details = bet_formula(bet_details)
+        bet_details = calculate_position(bet_details)
+
+        # Run bet
+
+        bet_details = round_setting(bet_details)    
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()

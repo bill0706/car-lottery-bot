@@ -1,3 +1,4 @@
+import logging
 import os
 
 from selenium import webdriver
@@ -22,6 +23,8 @@ def set_level():
     for level in level_list:
         int(level)
     
+    logger.info("關卡規則: %s" %level_list)
+
     return level_list
 
 
@@ -44,7 +47,7 @@ def open_browser():
     return driver
 
 
-def user_prompt():
+def user_login_prompt():
     logger.info("登入系統後，請開啟極速賽車後台頁面，再按下 'Enter' 鍵")
     
     while True:
@@ -72,3 +75,23 @@ def check_login_page(driver):
     driver.quit()
 
     raise SystemExit("driver.title == '極速賽車' not found")
+
+
+@log_measure
+def user_point_prompt(bet_details):
+    while True:
+        key_response = input('請輸入起始積分: ')
+        
+        try:
+            point = int(key_response)
+            if point >= 1:
+                break
+        
+        except:
+            logger.warning('輸入錯誤! 請重新輸入')
+    
+    bet_details.point = point
+
+    logger.info('輸入成功，等待進場...')
+
+    return bet_details
