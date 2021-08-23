@@ -48,12 +48,12 @@ def open_browser():
 
 
 def user_login_prompt():
-    logger.info("登入系統後，請開啟極速賽車後台頁面，再按下 'Enter' 鍵")
+    logger.info("登入系統後，請開啟極速賽車後台頁面，再輸入 'ok'")
     
     while True:
         key_response = input('')
         
-        if key_response == '':
+        if key_response.lower() == 'ok':
             break
         else:
             logger.warning('輸入錯誤! 請重新輸入')
