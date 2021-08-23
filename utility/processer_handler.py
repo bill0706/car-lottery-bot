@@ -23,16 +23,16 @@ def start_bet(bet_details, driver):
     ranking_elements = inputs_block.find_elements_by_tag_name("ul")
 
     # Switch lane to position index, write it
-    lane = bet_details.bet_position - 1
-    lanes = ranking_elements[lane].find_elements_by_tag_name('li')
+    for lane in bet_details.bet_position:
+        lanes = ranking_elements[lane - 1].find_elements_by_tag_name('li')
 
-    # switch to rank number position index
-    rank_index = bet_details.bet_num - 1
-    lane = lanes[rank_index].find_element_by_tag_name('input')
+        # switch to rank number position index
+        rank_index = bet_details.bet_num - 1
+        lane = lanes[rank_index].find_element_by_tag_name('input')
 
-    # write bet value
-    # Support string and int type
-    lane.send_keys(bet_details.bet_value)
+        # write bet value
+        # Support string and int type
+        lane.send_keys(bet_details.bet_value)
 
     # Find options element
     confirm_block = driver.find_element_by_css_selector('div.t_right')
@@ -48,8 +48,8 @@ def start_bet(bet_details, driver):
 
     # First summit
     for option in options:
+        
         # change value to "提交" when aggreagate the code
-        print(option.get_attribute('value'))
         if option.get_attribute('value') == "提交":
             option.click()
             break
@@ -98,7 +98,7 @@ def start_processer(loop_queue, api_dic, bet_details, driver):
         
         bet_details.prize_numbers = prize_numbers
 
-        logger.info("第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
+        logger.info("\n第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
             
         # Start the bet rule
         bet_details = bet_formula(bet_details)

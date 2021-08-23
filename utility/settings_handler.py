@@ -115,7 +115,7 @@ def set_backend_page(driver):
             break
     tab.click()
 
-    logger.info("設定完成")
+    logger.info("設定完成! 請保持後台頁面視窗呈現")
 
 
 @log_measure

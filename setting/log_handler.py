@@ -23,7 +23,7 @@ folder_path = os.path.join(absPath, folder_name)
 logFile = os.path.join(folder_path, logFile_name)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 file_handler = logging.FileHandler(logFile, 'a', 'utf-8')
 file_handler.setLevel(level=file_level)
