@@ -6,12 +6,12 @@ from selenium import webdriver
 from setting.function_wrapper import log_measure, driver_list
 from setting.log_handler import logger
 
-folder_path = os.path.abspath(os.getcwd()) 
+FOLDER_PATH = os.path.abspath(os.getcwd()) 
 
 
 @log_measure
 def set_level():
-    level_path = folder_path + r"\data\關卡設定.txt"
+    level_path = FOLDER_PATH + r"\data\關卡設定.txt"
 
     with open(level_path) as f:
         read_data = f.read()
@@ -30,8 +30,8 @@ def set_level():
 
 @log_measure
 def open_browser():
-    browser_path = folder_path + r"\Application\chrome.exe"
-    driver_path = folder_path + r"\Application\chromedriver"
+    browser_path = FOLDER_PATH + r"\Application\chrome.exe"
+    driver_path = FOLDER_PATH + r"\Application\chromedriver"
 
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--start-maximized")
