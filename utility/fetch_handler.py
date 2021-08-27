@@ -94,7 +94,7 @@ def first_fetch():
     loop_thread = ThreadWithException(target=fetch_prize_loop, args=(loop_queue, remaining_seconds))
     thread_list.append(loop_thread)
 
-    if remaining_seconds > 30:    
+    if remaining_seconds > 35:    
         loop_thread.start()
 
     # Wait next prize, sleep first(main and thread function)     

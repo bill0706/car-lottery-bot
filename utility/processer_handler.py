@@ -1,3 +1,4 @@
+import time
 from setting.function_wrapper import log_measure
 from setting.log_handler import logger
 from utility.fetch_handler import fetch_prize_details
@@ -57,10 +58,24 @@ def start_bet(bet_details, driver):
     final_options_block = driver.find_element_by_css_selector("div.myLayerFooter")
     options = final_options_block.find_elements_by_css_selector('a')
 
+    popup_block = driver.find_element_by_id('myWarp')
+
     # Final summit
     # options[0] is cancel
     # popup prompt Need to show on the screen
-    options[1].click()
+    while True:
+        options[1].click()
+        
+        # click won't immediately change popup status
+        time.sleep(1)
+
+        # popup options
+        popup_list = popup_block.find_elements_by_css_selector('table')
+
+        # click success
+        if len(popup_list) == 0:
+            break
+
 
     logger.info("下標成功!")
 
@@ -71,13 +86,13 @@ def start_processer(loop_queue, api_dic, bet_details, driver):
     # Used for first run
     queue_numbers = None
 
-    # First run, and remaing seconds <= 30
+    # First run, and remaing seconds <= 35
     if api_dic is None:
         
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
     
-    # First run, and remaing seconds > 30
+    # First run, and remaing seconds > 35
     else:
         prize_numbers, prize_issue = fetch_prize_details(api_dic)
         
@@ -92,7 +107,7 @@ def start_processer(loop_queue, api_dic, bet_details, driver):
             
             logger.debug("[DEBUG] Run in while, prize numbers: %s" %prize_numbers)
         
-        # Close the first run and remaing seconds > 30 's door
+        # Close the first run and remaing seconds > 35 's door
         else:
             api_dic = None
         
