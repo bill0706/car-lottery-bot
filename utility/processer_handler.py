@@ -5,7 +5,6 @@ from utility.fetch_handler import fetch_prize_details
 from utility.rule_handler import calculate_position, bet_formula, round_setting
 
 
-@log_measure
 def start_bet(bet_details, driver):
     logger.info("開始下標")
 
@@ -13,7 +12,7 @@ def start_bet(bet_details, driver):
     driver.switch_to.default_content()
 
     remaining_score = driver.find_element_by_id("usableCreditSpan").text
-    
+
     if bet_details.bet_value > int(remaining_score):
         raise SystemExit("錯誤! 餘額不足，無法下標")
 
@@ -49,13 +48,14 @@ def start_bet(bet_details, driver):
 
     # First summit
     for option in options:
-        
+
         # change value to "提交" when aggreagate the code
         if option.get_attribute('value') == "提交":
             option.click()
             break
 
-    final_options_block = driver.find_element_by_css_selector("div.myLayerFooter")
+    final_options_block = driver.find_element_by_css_selector(
+        "div.myLayerFooter")
     options = final_options_block.find_elements_by_css_selector('a')
 
     popup_block = driver.find_element_by_id('myWarp')
@@ -65,7 +65,7 @@ def start_bet(bet_details, driver):
     # popup prompt Need to show on the screen
     while True:
         options[1].click()
-        
+
         # click won't immediately change popup status
         time.sleep(1)
 
@@ -76,45 +76,43 @@ def start_bet(bet_details, driver):
         if len(popup_list) == 0:
             break
 
-
     logger.info("下標成功!")
 
 
-@log_measure
 def start_processer(loop_queue, api_dic, bet_details, driver):
-    
+
     # Used for first run
     queue_numbers = None
 
     # First run, and remaing seconds <= 35
     if api_dic is None:
-        
+
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
-    
+
     # First run, and remaing seconds > 35
     else:
         prize_numbers, prize_issue = fetch_prize_details(api_dic)
-        
-        logger.debug("[DEBUG] First run, prize numbers: %s" %prize_numbers)
 
+        logger.debug("[DEBUG] First run, prize numbers: %s" % prize_numbers)
 
     while queue_numbers or api_dic is not None:
-       
-        # Enter in loop_queue.get() expression 
+
+        # Enter in loop_queue.get() expression
         if queue_numbers is not None:
             prize_numbers, prize_issue = queue_numbers
-            
-            logger.debug("[DEBUG] Run in while, prize numbers: %s" %prize_numbers)
-        
+
+            logger.debug("[DEBUG] Run in while, prize numbers: %s" %
+                         prize_numbers)
+
         # Close the first run and remaing seconds > 35 's door
         else:
             api_dic = None
-        
+
         bet_details.prize_numbers = prize_numbers
 
-        logger.info("\n第 %s 期 開獎號碼為 %s" %(prize_issue, prize_numbers))
-            
+        logger.info("\n第 %s 期 開獎號碼為 %s" % (prize_issue, prize_numbers))
+
         # Start the bet rule
         bet_details = bet_formula(bet_details)
         bet_details = calculate_position(bet_details)
@@ -123,8 +121,7 @@ def start_processer(loop_queue, api_dic, bet_details, driver):
         if bet_details.start_bet_flag:
             start_bet(bet_details, driver)
 
-        bet_details = round_setting(bet_details)    
+        bet_details = round_setting(bet_details)
 
         # wait for the next prize numbers
         queue_numbers = loop_queue.get()
-

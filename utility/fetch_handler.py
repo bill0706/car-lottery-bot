@@ -10,7 +10,7 @@ import requests
 from setting.function_wrapper import log_measure
 from setting.log_handler import logger
 from utility.rule_handler import calculate_position
-from utility.thread_handler import close_thread, ThreadWithException, thread_list 
+from utility.thread_handler import close_thread, ThreadWithException, thread_list
 
 
 headers = {
@@ -31,15 +31,14 @@ headers = {
 }
 
 
-@log_measure
 def fetch_prize_api():
-    response = requests.get("https://api.apiose122.com/pks/getPksDoubleCount.do?date=&lotCode=10037", headers=headers)
+    response = requests.get(
+        "https://api.apiose122.com/pks/getPksDoubleCount.do?date=&lotCode=10037", headers=headers)
     api_dic = json.loads(response.text)
 
     return api_dic
 
 
-@log_measure
 def fetch_remaining_seconds(api_dic):
 
     # Get next prize datetime
@@ -53,7 +52,6 @@ def fetch_remaining_seconds(api_dic):
     return remaining_seconds
 
 
-@log_measure
 def fetch_prize_details(api_dic):
 
     # Get prize number
@@ -64,26 +62,26 @@ def fetch_prize_details(api_dic):
     return prize_numbers, prize_issue
 
 
-@log_measure
 def fetch_prize_loop(loop_queue, remaining_seconds):
-    
+
     # First fetch, sleep first, then get next prize details
-    logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
+    logger.debug('[DEBUG] next prize remaining seconds: %s' %
+                 remaining_seconds)
     time.sleep(remaining_seconds + 5)
 
     while True:
         api_dic = fetch_prize_api()
         prize_numbers = fetch_prize_details(api_dic)
-        
+
         # Put numbers first, then sleep to wait for next prize
         loop_queue.put(prize_numbers)
 
         remaining_seconds = fetch_remaining_seconds(api_dic)
-        logger.debug('[DEBUG] next prize remaining seconds: %s' %remaining_seconds)
+        logger.debug('[DEBUG] next prize remaining seconds: %s' %
+                     remaining_seconds)
         time.sleep(remaining_seconds + 5)
 
 
-@log_measure
 def first_fetch():
     global thread_list
 
@@ -91,13 +89,14 @@ def first_fetch():
     remaining_seconds = fetch_remaining_seconds(api_dic)
 
     loop_queue = Queue()
-    loop_thread = ThreadWithException(target=fetch_prize_loop, args=(loop_queue, remaining_seconds))
+    loop_thread = ThreadWithException(
+        target=fetch_prize_loop, args=(loop_queue, remaining_seconds))
     thread_list.append(loop_thread)
 
-    if remaining_seconds > 35:    
+    if remaining_seconds > 35:
         loop_thread.start()
 
-    # Wait next prize, sleep first(main and thread function)     
+    # Wait next prize, sleep first(main and thread function)
     else:
         # Remove the price details, wait for next prize in start_processer function
         api_dic = None
@@ -106,6 +105,5 @@ def first_fetch():
         loop_thread.start()
 
         time.sleep(remaining_seconds + 5)
-    
-    return loop_queue, api_dic
 
+    return loop_queue, api_dic

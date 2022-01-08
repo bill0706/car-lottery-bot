@@ -3,7 +3,6 @@ from setting.function_wrapper import log_measure
 from setting.log_handler import logger
 
 
-@log_measure
 def calculate_position(bet_details):
 
     # used in formula
@@ -14,8 +13,8 @@ def calculate_position(bet_details):
     prize_numbers = bet_details.prize_numbers
 
     champion = prize_numbers[0]
-    
-    if int(champion) % 2 == 1: 
+
+    if int(champion) % 2 == 1:
         champion_state = 'singular'
     else:
         champion_state = 'plural'
@@ -27,35 +26,35 @@ def calculate_position(bet_details):
             if count % 2 == 1:
                 aggregation += int(number)
                 bet_position.append(int(number))
-    
+
         # double
         else:
             if count % 2 == 0:
                 aggregation += int(number)
                 bet_position.append(int(number))
-        
+
         count += 1
 
     # int has no len() attribute
     while len(str(aggregation)) == 2:
         calculate = str(aggregation)
         aggregation = int(calculate[0]) + int(calculate[1])
-    
+
     bet_num = aggregation
-    
+
     bet_details.bet_num = bet_num
     bet_details.bet_position = bet_position
 
     if bet_details.check_approach_flag:
-        logger.info("計算號碼: %s ， 車道: %s" %(bet_details.bet_num, bet_details.bet_position))
+        logger.info("計算號碼: %s ， 車道: %s" %
+                    (bet_details.bet_num, bet_details.bet_position))
     else:
-        logger.info("下標號碼: %s ， 車道: %s" %(bet_details.bet_num, bet_details.bet_position))
-
+        logger.info("下標號碼: %s ， 車道: %s" %
+                    (bet_details.bet_num, bet_details.bet_position))
 
     return bet_details
 
 
-@log_measure
 def check_win(bet_details):
     logger.debug("[DEBUG] In check_win")
 
@@ -63,37 +62,38 @@ def check_win(bet_details):
         # index = position number -1
         if bet_details.last_bet_num == int(bet_details.prize_numbers[position - 1]):
             if bet_details.check_approach_flag:
-                logger.info("進場條件符合! 號碼 %s ， 第 %s 車道 " %(bet_details.last_bet_num, position))
-            
+                logger.info("進場條件符合! 號碼 %s ， 第 %s 車道 " %
+                            (bet_details.last_bet_num, position))
+
             else:
-                logger.info("恭喜中獎! 號碼 %s ， 第 %s 車道 " %(bet_details.last_bet_num, position))
+                logger.info("恭喜中獎! 號碼 %s ， 第 %s 車道 " %
+                            (bet_details.last_bet_num, position))
 
             # win
             bet_details.last_win_flag = True
 
             # number only have one position
             return bet_details
-    
+
     # lose
     bet_details.last_win_flag = False
-    
+
     if bet_details.check_approach_flag:
         logger.info("進場條件不符合!")
-    else:    
+    else:
         logger.info("尚未中獎!")
-    
+
     return bet_details
 
 
-@log_measure
 def check_bet_result(bet_details):
 
-    logger.debug("[DEBUG] last_bet_num: %s" %bet_details.last_bet_num)
+    logger.debug("[DEBUG] last_bet_num: %s" % bet_details.last_bet_num)
 
     # first run can't check
     if bet_details.last_bet_num is None:
         return bet_details
-    
+
     check_win(bet_details)
 
     # Need to Judge the approach requirement
@@ -102,7 +102,7 @@ def check_bet_result(bet_details):
             logger.info("成功進場!")
             bet_details.check_approach_flag = False
             bet_details.start_bet_flag = True
-    
+
     # had approached
     else:
 
@@ -110,8 +110,8 @@ def check_bet_result(bet_details):
         if bet_details.last_win_flag:
             bet_details.level_index = 0
 
-            logger.info("關卡調整為第 %s 關" %(bet_details.level_index + 1))
-        
+            logger.info("關卡調整為第 %s 關" % (bet_details.level_index + 1))
+
         # lose
         else:
             bet_details.level_index += 1
@@ -122,13 +122,13 @@ def check_bet_result(bet_details):
                 bet_details.check_approach_flag = True
                 bet_details.start_bet_flag = False
                 logger.info("關卡結束，等待重新進場...")
-            
+
             else:
-                logger.info("關卡調整為第 %s 關" %(bet_details.level_index + 1))
-    
+                logger.info("關卡調整為第 %s 關" % (bet_details.level_index + 1))
+
     return bet_details
 
-@log_measure
+
 def bet_formula(bet_details):
     logger.debug("[DEBUG] In bet_formula")
 
@@ -137,14 +137,16 @@ def bet_formula(bet_details):
     if bet_details.start_bet_flag:
 
         # bet_details.level_list is string type
-        bet_details.bet_value = bet_details.point * int(bet_details.level_list[bet_details.level_index])
-        
-        logger.info("起始積分: %s ， 倍率: %s" %(bet_details.point, int(bet_details.level_list[bet_details.level_index])))
-        logger.info("下標積分: %s" %bet_details.bet_value)
-    
+        bet_details.bet_value = bet_details.point * \
+            int(bet_details.level_list[bet_details.level_index])
+
+        logger.info("起始積分: %s ， 倍率: %s" % (bet_details.point, int(
+            bet_details.level_list[bet_details.level_index])))
+        logger.info("下標積分: %s" % bet_details.bet_value)
+
     return bet_details
 
-@log_measure
+
 def round_setting(bet_details):
     bet_details.last_bet_num = bet_details.bet_num
     bet_details.last_bet_position = bet_details.bet_position
@@ -152,8 +154,3 @@ def round_setting(bet_details):
     bet_details.bet_position = None
 
     return bet_details
-
-
-
-
-
